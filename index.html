@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samtalsmatta</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin: 20px;
+  }
+
+  #questionImage {
+    max-width: 250px;
+    max-height: 200px;
+    margin-bottom: 15px;
+    display: none;
+  }
+
+  input[type="file"] {
+    margin-bottom: 10px;
+  }
+
+  input[type="text"] {
+    padding: 10px;
+    margin-bottom: 20px;
+    font-size: 18px;
+    width: 250px;
+    text-align: center;
+  }
+
+  .button-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 25px;
+  }
+
+  .choice {
+    width: 200px;
+    height: 200px;
+    border-radius: 25px;
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .choice img {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 10px;
+  }
+
+  #yes { background-color: #4CAF50; }
+  #maybe { background-color: #FFA500; }
+  #no { background-color: #F44336; }
+
+  .bottom-buttons {
+    display: flex;
+    gap: 15px;
+  }
+
+  button.action {
+    background-color: #2196F3;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  button.action:hover {
+    opacity: 0.9;
+  }
+
+  #result {
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<h2 id="questionText"></h2>
+<img id="questionImage" src="" alt="Frågebild">
+
+<input type="file" id="imageUpload" accept="image/*">
+<input type="text" id="questionInput" placeholder="Skriv frågan här...">
+
+<div class="button-container">
+  <button id="yes" class="choice" onclick="selectChoice('JA')">
+    <img src="ja.png" alt="Ja"><span>JA</span>
+  </button>
+  <button id="maybe" class="choice" onclick="selectChoice('VET EJ')">
+    <img src="vetej.png" alt="Vet ej"><span>VET EJ</span>
+  </button>
+  <button id="no" class="choice" onclick="selectChoice('NEJ')">
+    <img src="nej.png" alt="Nej"><span>NEJ</span>
+  </button>
+</div>
+
+<div class="bottom-buttons">
+  <button class="action" onclick="resetSelection()">Återställ val</button>
+  <button class="action" onclick="showResult()">Visa svar</button>
+  <button class="action" onclick="clearStorage()" style="background-color:#f44336;">Rensa svar</button>
+</div>
+
+<p id="result"></p>
+
+<audio id="audioJa" src="ja.m4a"></audio>
+<audio id="audioNej" src="nej.m4a"></audio>
+<audio id="audioVetEj" src="vetej.m4a"></audio>
+<audio id="clickSound" src="klick.m4a"></audio>
+
+<script>
+  const resultText = document.getElementById("result");
+  const questionText = document.getElementById("questionText");
+  const imageUpload = document.getElementById("imageUpload");
+  const questionImage = document.getElementById("questionImage");
+  const questionInput = document.getElementById("questionInput");
+
+  questionInput.addEventListener("input", () => {
+    questionText.textContent = questionInput.value;
+  });
+
+  imageUpload.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        questionImage.src = e.target.result;
+        questionImage.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  function selectChoice(choice) {
+    localStorage.setItem("val", choice);
+    document.getElementById("clickSound").play();
+
+    if (choice === "JA") document.getElementById("audioJa").play();
+    if (choice === "NEJ") document.getElementById("audioNej").play();
+    if (choice === "VET EJ") document.getElementById("audioVetEj").play();
+  }
+
+  function showResult() {
+    const val = localStorage.getItem("val");
+    if (val) {
+      resultText.textContent = "Val: " + val;
+    } else {
+      resultText.textContent = "Inget val har gjorts än.";
+    }
+  }
+
+  function resetSelection() {
+    localStorage.removeItem("val");
+    resultText.textContent = "";
+  }
+
+  function clearStorage() {
+    localStorage.clear();
+    resultText.textContent = "Alla sparade val är raderade.";
+  }
+</script>
+
+</body>
+</html>
